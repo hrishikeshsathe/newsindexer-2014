@@ -9,8 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import edu.buffalo.cse.irf14.Runner;
+import edu.buffalo.cse.irf14.pattern.ParserPatterns;
 
 /**
  * @author nikhillo
@@ -38,7 +37,6 @@ public class Parser {
 			br = new BufferedReader(new FileReader(filename));	
 		}
 		catch(Exception e){
-
 		}
 
 		/* Get other information */
@@ -54,30 +52,20 @@ public class Parser {
 	 * @param d : Document d for storing parsed information
 	 */
 	public static void getTitleInformation(BufferedReader br, Document d){
-
 		String line = null;
-		Pattern titlePattern = Pattern.compile("[a-z]+");
-		Matcher titleMatcher;
-
 		try{
+//			Skip whitespace
 			while((line = br.readLine()) != null){
 				line = line.trim();
 				if(line.equals("") || line.equals("\n") || line.equals(" ")){
 					continue;
 				}
-
-				titleMatcher = titlePattern.matcher(line);
-				if(titleMatcher.find() != true){
-					d.setField(FieldNames.TITLE, line);
-					break;
-				}
-				else{
-					break;
-				}
+				
+				d.setField(FieldNames.TITLE, line);
+				break;
 			}
 		}
 		catch(Exception e){
-
 		}
 	}
 	/**
@@ -87,55 +75,57 @@ public class Parser {
 	public static void getAuthorInformation(BufferedReader br, Document d){
 		String line = null;
 
-		Pattern authorPattern = Pattern.compile("(?i)<AUTHOR>[\\s]+by(.+?)</AUTHOR>");
-		Pattern authorOrgPattern = Pattern.compile("[\\s](.+?),[\\s](\\w+)");
+		Pattern authorPattern = Pattern.compile(ParserPatterns.AUTHOR_PATTERN);
+		Pattern authorOrgPattern = Pattern.compile(ParserPatterns.AUTHOR_ORG_PATTERN);
 
 		Matcher authorMatcher;
 		Matcher authorOrgMatcher;
 
 		try
 		{
+//			Skip whitespace
 			while((line = br.readLine()) != null){
 				line = line.trim();
-				if(line.equals("") || line.equals("\n") || line.equals(" ")){
+				if(line.equals("") || line.equals("\n") || line.equals(" ")){ 
 					continue;
-				}
+				}//end of if
 
 				authorMatcher = authorPattern.matcher(line);
 				if(authorMatcher.find()){ //if1
 					authorOrgMatcher = authorOrgPattern.matcher(authorMatcher.group(1));
 					if(authorOrgMatcher.find()){ //if2
-						Runner.count2++;
 						d.setField(FieldNames.AUTHOR, authorOrgMatcher.group(1)); //Author
 						d.setField(FieldNames.AUTHORORG, authorOrgMatcher.group(2)); //Author Organisation
 					}//end of if2
 					else{
-						Runner.count1++;
 						d.setField(FieldNames.AUTHOR, authorMatcher.group(1)); //Author
 						d.setField(FieldNames.AUTHORORG, ""); //Author Organization
 					}//end of else
-					getPlaceInformation(br,d,null);
+//					call getPlaceInformation where author is not found
+					getDateInformation(br,d,null);
 					break;
 				}//end of if1
 				else
 				{
-					getPlaceInformation(br,d,line);
+					getDateInformation(br,d,line);		
 					break;
 				}
 			}//end of while
 		}//end of try
 		catch(Exception e){
-
 		}//end of catch
-	}
+	}//end of function
 
 	/**
 	 * @param br : BufferedReader for file handling
 	 * @param d : Document d for storing parsed information
 	 * @param line : Line from which place info is to be extracted
 	 */
-	public static void getPlaceInformation(BufferedReader br, Document d, String line)
+	public static void getDateInformation(BufferedReader br, Document d, String line)
 	{
+		Pattern datePattern = Pattern.compile(ParserPatterns.DATE_PATTERN);	
+		Matcher dateMatcher = null;
+		String date = null;
 		try{
 			if(line==null){	//if1
 				while((line = br.readLine()) != null){
@@ -143,42 +133,81 @@ public class Parser {
 					if(line.equals("") || line.equals("\n") || line.equals(" ")){	//if2
 						continue;
 					}//end of if2
-					if(line.contains("-")){
-						getPlaceAndDate(line,d);
-					}
+					
+					dateMatcher = datePattern.matcher(line);
+					
+					if(dateMatcher.find()){ //if3
+						date = dateMatcher.group(0);
+						d.setField(FieldNames.NEWSDATE, date);
+						getPlace(line,d,dateMatcher.group(0));
+					}	//end of if3
 					break;
-				}
-			}
+				}//end of while
+			}//end of if1
 			else
 			{
-				if(line.contains("-")){
-					getPlaceAndDate(line,d);
-				}
-				Runner.count++;}
-		}
+				dateMatcher = datePattern.matcher(line);
+				if(dateMatcher.find()){
+					date = dateMatcher.group(0);
+					d.setField(FieldNames.NEWSDATE, date);
+					getPlace(line,d,dateMatcher.group(0));
+				}//end of if
+			}//end of else
+		}//end of try
 		catch(Exception e){
+		}//end of catch
+		getContent(line,br,d,date);
 
-		}
-
-	}
+	}//end of fucnction
 
 	/**
 	 * @param line : Line from which place info is to be extracted
 	 * @param d : Document d for storing parsed information
+	 * @param date : date found in the line
 	 */
 
-	public static void getPlaceAndDate(String line, Document d){
-
-		String subStr = line.substring(0,line.indexOf('-'));
-		String subArr[] = subStr.split(",");
-		String date = subArr[subArr.length-1].toString().trim();
+	public static void getPlace(String line, Document d, String date){
+		char[] subArr = line.toCharArray();
+		int index = line.indexOf(date);
 		String place = "";
-
-		for (int i=0;i<(subArr.length-1);i++)
+		for (int i=0;i<(index-1);i++)
 		{
 			place=place+subArr[i];
 		}
-		d.setField(FieldNames.NEWSDATE, date);
 		d.setField(FieldNames.PLACE, place);
-	}
-}
+
+	}//end of function
+	
+	/**
+	 * 
+	 * @param line : Line from which place info is to be extracted
+	 * @param br : BufferedReader for file handling
+	 * @param d : Document d for storing parsed information
+	 * @param date : date found in the line
+	 */
+	public static void getContent(String line,BufferedReader br, Document d, String date){
+		
+		char[] subArr = line.toCharArray();
+		int index = 0;
+		String content = "";
+		
+		if(date!=null){
+			index = line.indexOf(date)+date.length();
+		}
+		
+		for (int i=index;i<line.length();i++)
+		{
+			content=content+subArr[i];
+		}
+		
+		try{
+
+			while((line=br.readLine())!=null){
+				content+=line+"\n";
+			}
+			d.setField(FieldNames.CONTENT, content);
+		}
+		catch(Exception e){
+		}
+	}//end of function
+}//end of class

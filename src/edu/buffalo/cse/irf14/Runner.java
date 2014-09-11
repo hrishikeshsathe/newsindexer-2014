@@ -3,7 +3,10 @@
  */
 package edu.buffalo.cse.irf14;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import edu.buffalo.cse.irf14.document.Document;
 import edu.buffalo.cse.irf14.document.Parser;
@@ -16,10 +19,7 @@ import edu.buffalo.cse.irf14.index.IndexerException;
  *
  */
 public class Runner {
-	public static int count;
-	public static int count1;
-	public static int count2;
-
+	
 	/**
 	 * 
 	 */
@@ -29,13 +29,13 @@ public class Runner {
 
 	/**
 	 * @param args
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		//String ipDir = args[0];
 		String ipDir = "E:/IR/training";
 		//String indexDir = args[1];
 		//more? idk!
-		
 		File ipDirectory = new File(ipDir);
 		String[] catDirectories = ipDirectory.list();
 		
@@ -67,7 +67,6 @@ public class Runner {
 				
 				
 			}
-			System.out.println(count+" "+count1+" "+count2);
 			//writer.close();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
