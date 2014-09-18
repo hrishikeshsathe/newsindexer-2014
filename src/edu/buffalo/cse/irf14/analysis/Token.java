@@ -64,10 +64,21 @@ public class Token {
 	 * below must return whitespace separated value for all tokens combined
 	 * Also the token order must be maintained.
 	 * @param tokens The token array to be merged
+	 * @throws Exception 
 	 */
-	protected void merge(Token...tokens) {
+	protected void merge(Token...tokens){
 		//TODO : YOU MUST IMPLEMENT THIS METHOD
+		if(tokens==null)
+			return;
+		for(int i=0;i<tokens.length;i++){
+			if(tokens[i] == null)
+				throw new NullPointerException();
+			else
+				termText += " "+tokens[i].termText;
+		}
+		setTermText(termText);
 	}
+
 	
 	/**
 	 * Returns the string representation of this token. It must adhere to the
@@ -84,6 +95,6 @@ public class Token {
 	@Override
 	public String toString() {
 		//TODO: YOU MUST IMPLEMENT THIS METHOD
-		return null;
+		return termText;
 	}
 }

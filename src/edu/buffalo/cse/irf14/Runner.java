@@ -3,12 +3,10 @@
  */
 package edu.buffalo.cse.irf14;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
 import edu.buffalo.cse.irf14.document.Document;
+import edu.buffalo.cse.irf14.document.FieldNames;
 import edu.buffalo.cse.irf14.document.Parser;
 import edu.buffalo.cse.irf14.document.ParserException;
 import edu.buffalo.cse.irf14.index.IndexWriter;
@@ -19,7 +17,7 @@ import edu.buffalo.cse.irf14.index.IndexerException;
  *
  */
 public class Runner {
-	
+
 	/**
 	 * 
 	 */
@@ -29,13 +27,12 @@ public class Runner {
 
 	/**
 	 * @param args
-	 * @throws IOException 
 	 */
-	public static void main(String[] args) throws IOException {
-		//String ipDir = args[0];
+	public static void main(String[] args) {
 		String ipDir = "E:/IR/training";
-		//String indexDir = args[1];
+		String indexDir = "E:/IR/training";
 		//more? idk!
+		
 		File ipDirectory = new File(ipDir);
 		String[] catDirectories = ipDirectory.list();
 		
@@ -43,7 +40,7 @@ public class Runner {
 		File dir;
 		
 		Document d = null;
-		//IndexWriter writer = new IndexWriter(indexDir);
+		IndexWriter writer = new IndexWriter(indexDir);
 		
 		try {
 			for (String cat : catDirectories) {
@@ -52,12 +49,11 @@ public class Runner {
 				
 				if (files == null)
 					continue;
-				
+
 				for (String f : files) {
 					try {
 						d = Parser.parse(dir.getAbsolutePath() + File.separator +f);
-						
-						//writer.addDocument(d);
+						writer.addDocument(d);
 					} catch (ParserException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -65,10 +61,10 @@ public class Runner {
 					
 				}
 				
-				
 			}
-			//writer.close();
-		} catch (Exception e) {
+			
+			writer.close();
+		} catch (IndexerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

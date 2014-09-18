@@ -3,6 +3,7 @@
  */
 package edu.buffalo.cse.irf14.analysis;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
@@ -12,7 +13,17 @@ import java.util.Iterator;
  * behavior
  */
 public class TokenStream implements Iterator<Token>{
-	
+
+	ArrayList<Token> tokenStream ;
+	int position;
+	int currentPosition;
+
+
+	TokenStream(){
+		this.tokenStream = new ArrayList<Token>();
+		this.position = -1;
+		this.currentPosition = -1;
+	}
 	/**
 	 * Method that checks if there is any Token left in the stream
 	 * with regards to the current pointer.
@@ -21,8 +32,10 @@ public class TokenStream implements Iterator<Token>{
 	 */
 	@Override
 	public boolean hasNext() {
-		// TODO YOU MUST IMPLEMENT THIS
-		return false;
+		if (position<tokenStream.size()-1)
+			return true;
+		else
+			return false;
 	}
 
 	/**
@@ -34,10 +47,19 @@ public class TokenStream implements Iterator<Token>{
 	 */
 	@Override
 	public Token next() {
-		// TODO YOU MUST IMPLEMENT THIS
-		return null;
+		if(hasNext()){
+			position++;
+			currentPosition = position;
+			Token t = tokenStream.get(position);
+			return t;
+		}
+		else
+		{
+			currentPosition = -1;
+			return null;
+		}
 	}
-	
+
 	/**
 	 * Method to remove the current Token from the stream.
 	 * Note that "current" token refers to the Token just returned
@@ -46,10 +68,17 @@ public class TokenStream implements Iterator<Token>{
 	 */
 	@Override
 	public void remove() {
-		// TODO YOU MUST IMPLEMENT THIS
-		
+		if(position==-1 || position>=(tokenStream.size())){
+
+		}
+		else
+		{
+			tokenStream.remove(position);
+			position--;
+		}
+
 	}
-	
+
 	/**
 	 * Method to reset the stream to bring the iterator back to the beginning
 	 * of the stream. Unless the stream has no tokens, hasNext() after calling
@@ -57,8 +86,10 @@ public class TokenStream implements Iterator<Token>{
 	 */
 	public void reset() {
 		//TODO : YOU MUST IMPLEMENT THIS
+		position = -1;
+		currentPosition = -1;
 	}
-	
+
 	/**
 	 * Method to append the given TokenStream to the end of the current stream
 	 * The append must always occur at the end irrespective of where the iterator
@@ -70,6 +101,36 @@ public class TokenStream implements Iterator<Token>{
 	 */
 	public void append(TokenStream stream) {
 		//TODO : YOU MUST IMPLEMENT THIS
+		if(stream!=null)
+		{
+			stream.reset();
+			while(stream.hasNext()){
+				tokenStream.add(stream.next());
+			}
+		}
 	}
-	
+
+	/**
+	 * Method to get the current Token from the stream without iteration.
+	 * The only difference between this method and {@link TokenStream#next()} is that
+	 * the latter moves the stream forward, this one does not.
+	 * Calling this method multiple times would not alter the return value of {@link TokenStream#hasNext()}
+	 * @return The current {@link Token} if one exists, null if end of stream
+	 * has been reached or the current Token was removed
+	 */
+	public Token getCurrent() {
+		//TODO: YOU MUST IMPLEMENT THIS
+		if(currentPosition <= position && currentPosition>-1)
+			return tokenStream.get(currentPosition);
+		else
+			return null;
+
+	}
+	public void set(Token token) {
+		// TODO Auto-generated method stub
+		tokenStream.add(token);
+
+
+	}
+
 }

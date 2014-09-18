@@ -29,14 +29,29 @@ public class Parser {
 		String[] temp = null;
 		BufferedReader br = null;
 
-		temp = filename.split("[\\"+File.separator+"]");
-		d.setField(FieldNames.FILEID, temp[temp.length-1]); //FileID
-		d.setField(FieldNames.CATEGORY, temp[temp.length-2]); //Category
-
 		try{
-			br = new BufferedReader(new FileReader(filename));	
+
+			if(null!=filename)
+			{
+
+				File f=new File(filename);
+				if(!f.exists() || f.isDirectory())
+				{
+					throw new ParserException(); 
+				}
+				temp = filename.split("[\\"+File.separator+"]");
+
+				d.setField(FieldNames.FILEID, temp[temp.length-1]); //FileID
+				d.setField(FieldNames.CATEGORY, temp[temp.length-2]); //Category
+
+				br = new BufferedReader(new FileReader(filename));	
+			}
+			else
+				throw new ParserException();
 		}
+
 		catch(Exception e){
+			throw new ParserException();
 		}
 
 		/* Get other information */
@@ -54,13 +69,13 @@ public class Parser {
 	public static void getTitleInformation(BufferedReader br, Document d){
 		String line = null;
 		try{
-//			Skip whitespace
+			//			Skip whitespace
 			while((line = br.readLine()) != null){
 				line = line.trim();
 				if(line.equals("") || line.equals("\n") || line.equals(" ")){
 					continue;
 				}
-				
+
 				d.setField(FieldNames.TITLE, line);
 				break;
 			}
@@ -83,7 +98,7 @@ public class Parser {
 
 		try
 		{
-//			Skip whitespace
+			//			Skip whitespace
 			while((line = br.readLine()) != null){
 				line = line.trim();
 				if(line.equals("") || line.equals("\n") || line.equals(" ")){ 
@@ -101,7 +116,7 @@ public class Parser {
 						d.setField(FieldNames.AUTHOR, authorMatcher.group(1)); //Author
 						d.setField(FieldNames.AUTHORORG, ""); //Author Organization
 					}//end of else
-//					call getPlaceInformation where author is not found
+					//					call getPlaceInformation where author is not found
 					getDateInformation(br,d,null);
 					break;
 				}//end of if1
@@ -133,9 +148,9 @@ public class Parser {
 					if(line.equals("") || line.equals("\n") || line.equals(" ")){	//if2
 						continue;
 					}//end of if2
-					
+
 					dateMatcher = datePattern.matcher(line);
-					
+
 					if(dateMatcher.find()){ //if3
 						date = dateMatcher.group(0);
 						d.setField(FieldNames.NEWSDATE, date);
@@ -170,14 +185,14 @@ public class Parser {
 		char[] subArr = line.toCharArray();
 		int index = line.indexOf(date);
 		String place = "";
-		for (int i=0;i<(index-1);i++)
+		for (int i=0;i<(index-2);i++)
 		{
 			place=place+subArr[i];
 		}
 		d.setField(FieldNames.PLACE, place);
 
 	}//end of function
-	
+
 	/**
 	 * 
 	 * @param line : Line from which place info is to be extracted
@@ -186,20 +201,20 @@ public class Parser {
 	 * @param date : date found in the line
 	 */
 	public static void getContent(String line,BufferedReader br, Document d, String date){
-		
+
 		char[] subArr = line.toCharArray();
 		int index = 0;
 		String content = "";
-		
+
 		if(date!=null){
 			index = line.indexOf(date)+date.length();
 		}
-		
+
 		for (int i=index;i<line.length();i++)
 		{
 			content=content+subArr[i];
 		}
-		
+
 		try{
 
 			while((line=br.readLine())!=null){
