@@ -165,10 +165,9 @@ public class TokenStreamTest {
 			stream.next();
 			stream.remove();
 		}
-
+		
 		assertFalse(stream.hasNext());
 		stream.reset();
-
 		assertFalse(stream.hasNext());
 	}
 

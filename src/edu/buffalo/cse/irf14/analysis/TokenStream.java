@@ -129,8 +129,9 @@ public class TokenStream implements Iterator<Token>{
 	public void set(Token token) {
 		// TODO Auto-generated method stub
 		tokenStream.add(token);
-
-
+}
+	public Token lastIndex(){
+		return tokenStream.get(tokenStream.size()-1);
 	}
 
 }

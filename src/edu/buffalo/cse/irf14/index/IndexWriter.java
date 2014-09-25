@@ -3,11 +3,7 @@
  */
 package edu.buffalo.cse.irf14.index;
 
-import edu.buffalo.cse.irf14.analysis.TokenStream;
-import edu.buffalo.cse.irf14.analysis.Tokenizer;
-import edu.buffalo.cse.irf14.analysis.TokenizerException;
 import edu.buffalo.cse.irf14.document.Document;
-import edu.buffalo.cse.irf14.document.FieldNames;
 
 /**
  * @author nikhillo
@@ -32,16 +28,6 @@ public class IndexWriter {
 	 */
 	public void addDocument(Document d) throws IndexerException {
 		//TODO : YOU MUST IMPLEMENT THIS
-		Tokenizer tokenizer = new Tokenizer();
-
-		TokenStream ts = null;
-		try {
-			ts = tokenizer.consume(d.getField(FieldNames.TITLE)[0]);
-		} catch (TokenizerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 	}
 	
 	/**

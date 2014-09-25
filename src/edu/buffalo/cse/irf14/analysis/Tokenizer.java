@@ -58,6 +58,7 @@ public class Tokenizer {
 			token.setTermText(temp[i]);
 			tokenStream.set(token);
 		}
+		
 		return tokenStream;
 	}
 }

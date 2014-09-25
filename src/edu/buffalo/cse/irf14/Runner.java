@@ -6,7 +6,6 @@ package edu.buffalo.cse.irf14;
 import java.io.File;
 
 import edu.buffalo.cse.irf14.document.Document;
-import edu.buffalo.cse.irf14.document.FieldNames;
 import edu.buffalo.cse.irf14.document.Parser;
 import edu.buffalo.cse.irf14.document.ParserException;
 import edu.buffalo.cse.irf14.index.IndexWriter;
@@ -29,8 +28,8 @@ public class Runner {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String ipDir = "E:/IR/training";
-		String indexDir = "E:/IR/training";
+		String ipDir = args[0];
+		String indexDir = args[1];
 		//more? idk!
 		
 		File ipDirectory = new File(ipDir);
@@ -49,7 +48,7 @@ public class Runner {
 				
 				if (files == null)
 					continue;
-
+				
 				for (String f : files) {
 					try {
 						d = Parser.parse(dir.getAbsolutePath() + File.separator +f);

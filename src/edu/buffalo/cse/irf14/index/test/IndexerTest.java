@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -38,7 +39,7 @@ public class IndexerTest {
 	private IndexReader reader;
 	
 	@BeforeClass
-	public final void setupIndex() throws IndexerException {
+	public final static void setupIndex() throws IndexerException {
 		String[] strs = {"new home sales top sales forecasts", "home sales rise in july", 
 				"increase in home sales in july", "july new home sales rise"};
 		int len = strs.length;
@@ -53,8 +54,11 @@ public class IndexerTest {
 		}
 		
 		writer.close();
-		
-		reader = new IndexReader(dir, IndexType.TERM);
+	}
+
+	@Before
+	public final void before() {
+		reader = new IndexReader(System.getProperty("INDEX.DIR"), IndexType.TERM);
 	}
 	
 	/**
@@ -193,7 +197,7 @@ public class IndexerTest {
 	}
 
 	private Map<String, Integer> intersect(HashMap<String, Integer>...hashMaps) {
-		HashMap<String, Integer> basemap = hashMaps[0];
+		HashMap<String, Integer> basemap = new HashMap<String, Integer>(hashMaps[0]);
 		
 		int len = hashMaps.length;
 		String key;
@@ -224,13 +228,17 @@ public class IndexerTest {
 
 		HashMap<String, Integer> temp = null;
 		String[] splits;
-		
+		int val;
+
 		for (String cnt : counts) {
 			temp = new HashMap<String, Integer>();
 			splits = cnt.split("/");
 			
 			for (int i = 0; i < 4; i++) {
-				temp.put(docids[i], Integer.valueOf(splits[i]));
+				val = Integer.valueOf(splits[i]);
+
+				if (val > 0)
+					temp.put(docids[i], val);
 			}
 			
 			retlist.add(temp);
