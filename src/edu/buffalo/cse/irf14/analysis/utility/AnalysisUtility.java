@@ -11,11 +11,16 @@ public class AnalysisUtility {
 	public static HashMap<Character,String> accentWords;
 	public static HashMap<String,String> contractions;
 	public static HashMap<String,String> monthNumber;
-	public static final String SPECIALCHAR = "[^\\.\\!\\?A-Za-z0-9\\-]*";
+	public static final String SPECIALCHAR = "[^\\.\\!\\?A-Za-z0-9\\-\\s]*";
 	public static final String HYPHEN = "([A-Za-z]+)\\-([A-Za-z]+)";
 	public static final String DATEPATTERN = "(?i)(Jan(uary)?|Feb(ruary)?|Mar(c(h)?)?|Apr(i(l)?)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|"
 			+ "Sep(t(ember)?)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)";
 	public static final String TIMEPATTERN = "(?:(?:([01]?\\d|2[0-3]):)?([0-5]?\\d):)?([0-5]?\\d)([am|pm|AM|PM]*)\\.*";
+	public static final String DAYPATTERN = "(0*[1-9]|[12]\\d|3[01])";
+	public static final String YEARPATTERN = "\\d{4}\\,*";
+	public static final String DEFAULTYEAR = "1900";
+	public static final String DEFAULTDAY = "01";
+	public static final String DEFAULTMONTH = "01";
 	
 	static
 	{

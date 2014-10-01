@@ -26,6 +26,12 @@ public class CapitalizationFilter extends TokenFilter {
 		boolean isLastWord=false;
 		String temp = null;
 
+		if(isAllCapsSentence())
+		{
+			toLowerCaseSentence();
+			return false;
+		}
+		ts.reset();
 		temp = ts.next().getTermText();
 		if(isCamelCased(temp))
 		{
@@ -57,6 +63,8 @@ public class CapitalizationFilter extends TokenFilter {
 				{
 
 					int index=ts.position;
+					if(ts.hasNext())
+					{
 					String str=ts.next().getTermText();
 
 					if(isCamelCased(str))
@@ -65,7 +73,8 @@ public class CapitalizationFilter extends TokenFilter {
 
 						ts.remove();
 					}
-					ts.tokenStream.get(index).setTermText(temp3);;
+					}
+					ts.tokenStream.get(index).setTermText(temp3);
 				}
 			}
 		}
@@ -100,5 +109,48 @@ public class CapitalizationFilter extends TokenFilter {
 		{
 			return false;
 		}
+	}
+	
+	public boolean isAllCapsSentence()
+	{
+		TokenStream tStream=ts;
+		while(tStream.hasNext())
+		{
+			String str=tStream.next().getTermText();
+			
+		for (int i=0;i<str.length();i++)
+		{
+			if(Character.isLetter(str.charAt(i)) && Character.isLowerCase(str.charAt(i)))
+			{
+				return false;
+			}
+		}
+		}
+		return true;
+		
+	}
+	public void toLowerCaseSentence()
+	{
+
+		ts.reset();
+		while(ts.hasNext())
+		{
+			String str=ts.next().getTermText();
+			char[] strArr=str.toCharArray();
+		for (int i=0;i<strArr.length;i++)
+		{
+			if(Character.isLetter(strArr[i]) && Character.isUpperCase(strArr[i]))
+			{
+				strArr[i]=Character.toLowerCase(strArr[i]);
+				
+				
+			}
+		}
+		
+		ts.getCurrent().setTermBuffer(strArr);
+		}
+		ts.reset();
+		
+	
 	}
 }

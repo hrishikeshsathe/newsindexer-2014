@@ -3,6 +3,12 @@
  */
 package edu.buffalo.cse.irf14.analysis;
 
+import edu.buffalo.cse.irf14.analysis.analyzer.AuthorAnalyzer;
+import edu.buffalo.cse.irf14.analysis.analyzer.AuthorOrgAnalyzer;
+import edu.buffalo.cse.irf14.analysis.analyzer.CategoryAnalyzer;
+import edu.buffalo.cse.irf14.analysis.analyzer.NewsDateAnalyzer;
+import edu.buffalo.cse.irf14.analysis.analyzer.PlaceAnalyzer;
+import edu.buffalo.cse.irf14.analysis.analyzer.TermAnalyzer;
 import edu.buffalo.cse.irf14.document.FieldNames;
 
 /**
@@ -10,6 +16,10 @@ import edu.buffalo.cse.irf14.document.FieldNames;
  * This factory class is responsible for instantiating "chained" {@link Analyzer} instances
  */
 public class AnalyzerFactory {
+	
+	private AnalyzerFactory(){
+		
+	}
 	/**
 	 * Static method to return an instance of the factory class.
 	 * Usually factory classes are defined as singletons, i.e. 
@@ -23,7 +33,7 @@ public class AnalyzerFactory {
 	 */
 	public static AnalyzerFactory getInstance() {
 		//TODO: YOU NEED TO IMPLEMENT THIS METHOD
-		return null;
+		return new AnalyzerFactory();
 	}
 	
 	/**
@@ -39,6 +49,34 @@ public class AnalyzerFactory {
 	 */
 	public Analyzer getAnalyzerForField(FieldNames name, TokenStream stream) {
 		//TODO : YOU NEED TO IMPLEMENT THIS METHOD
-		return null;
+		if(name.equals(FieldNames.TITLE) || name.equals(FieldNames.CONTENT)){
+			TermAnalyzer ta = new TermAnalyzer(stream);
+			return ta;
+		}
+		else if(name.equals(FieldNames.AUTHOR))
+		{
+			AuthorAnalyzer aa = new AuthorAnalyzer(stream);
+			return aa;
+		}
+		else if(name.equals(FieldNames.AUTHORORG)){
+			AuthorOrgAnalyzer aoa = new AuthorOrgAnalyzer(stream);
+			return aoa;
+		}
+		else if(name.equals(FieldNames.PLACE)){
+			PlaceAnalyzer pa = new PlaceAnalyzer(stream);
+			return pa;
+		}
+		else if(name.equals(FieldNames.CATEGORY))
+		{
+			CategoryAnalyzer ca=new CategoryAnalyzer(stream);
+			return ca;
+		}
+		else if(name.equals(FieldNames.NEWSDATE))
+		{
+			NewsDateAnalyzer na=new NewsDateAnalyzer(stream);
+			return na;
+		}
+		else
+			return null;
 	}
 }

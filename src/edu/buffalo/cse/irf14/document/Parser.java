@@ -65,8 +65,9 @@ public class Parser {
 	 * 
 	 * @param br : BufferedReader for file handling
 	 * @param d : Document d for storing parsed information
+	 * @throws ParserException 
 	 */
-	public static void getTitleInformation(BufferedReader br, Document d){
+	public static void getTitleInformation(BufferedReader br, Document d) throws ParserException{
 		String line = null;
 		try{
 			//			Skip whitespace
@@ -81,13 +82,15 @@ public class Parser {
 			}
 		}
 		catch(Exception e){
+			throw new ParserException();
 		}
 	}
 	/**
 	 * @param br : BufferedReader for file handling
 	 * @param d : Document d for storing parsed information
+	 * @throws ParserException 
 	 */
-	public static void getAuthorInformation(BufferedReader br, Document d){
+	public static void getAuthorInformation(BufferedReader br, Document d) throws ParserException{
 		String line = null;
 
 		Pattern authorPattern = Pattern.compile(ParserPatterns.AUTHOR_PATTERN);
@@ -115,6 +118,7 @@ public class Parser {
 					else{
 						d.setField(FieldNames.AUTHOR, authorMatcher.group(1)); //Author
 						d.setField(FieldNames.AUTHORORG, ""); //Author Organization
+
 					}//end of else
 					//					call getPlaceInformation where author is not found
 					getDateInformation(br,d,null);
@@ -128,6 +132,7 @@ public class Parser {
 			}//end of while
 		}//end of try
 		catch(Exception e){
+			throw new ParserException();
 		}//end of catch
 	}//end of function
 
@@ -135,8 +140,9 @@ public class Parser {
 	 * @param br : BufferedReader for file handling
 	 * @param d : Document d for storing parsed information
 	 * @param line : Line from which place info is to be extracted
+	 * @throws ParserException 
 	 */
-	public static void getDateInformation(BufferedReader br, Document d, String line)
+	public static void getDateInformation(BufferedReader br, Document d, String line) throws ParserException
 	{
 		Pattern datePattern = Pattern.compile(ParserPatterns.DATE_PATTERN);	
 		Matcher dateMatcher = null;
@@ -170,6 +176,7 @@ public class Parser {
 			}//end of else
 		}//end of try
 		catch(Exception e){
+			throw new ParserException();
 		}//end of catch
 		getContent(line,br,d,date);
 
@@ -199,8 +206,9 @@ public class Parser {
 	 * @param br : BufferedReader for file handling
 	 * @param d : Document d for storing parsed information
 	 * @param date : date found in the line
+	 * @throws ParserException 
 	 */
-	public static void getContent(String line,BufferedReader br, Document d, String date){
+	public static void getContent(String line,BufferedReader br, Document d, String date) throws ParserException{
 
 		char[] subArr = line.toCharArray();
 		int index = 0;
@@ -214,15 +222,16 @@ public class Parser {
 		{
 			content=content+subArr[i];
 		}
-
+		content+=" ";
 		try{
 
 			while((line=br.readLine())!=null){
-				content+=line+"\n";
+				content+=line+" ";
 			}
 			d.setField(FieldNames.CONTENT, content);
 		}
 		catch(Exception e){
+			throw new ParserException();
 		}
 	}//end of function
 }//end of class

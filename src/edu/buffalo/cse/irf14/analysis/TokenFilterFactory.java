@@ -4,6 +4,7 @@
 package edu.buffalo.cse.irf14.analysis;
 
 
+
 /**
  * Factory class for instantiating a given TokenFilter
  * @author nikhillo
@@ -40,18 +41,18 @@ public class TokenFilterFactory {
 	 */
 	public TokenFilter getFilterByType(TokenFilterType type, TokenStream stream) throws TokenizerException {
 		//TODO : YOU MUST IMPLEMENT THIS METHOD
-		Accent ac = null;
-		Stopword sw = null;
-		SpecialChar sc = null;
-		Symbol sm = null;
+		AccentFilter ac = null;
+		StopwordFilter sw = null;
+		SpecialCharFilter sc = null;
+		SymbolFilter sm = null;
 		NumberFilter nf = null;
 		CapitalizationFilter cf = null;
-		Stemmer st=null;
+		StemmerFilter st=null;
 		DateFilter df = null;
 		
 		if(type==TokenFilterType.ACCENT)
 		{
-			ac = new Accent(stream);
+			ac = new AccentFilter(stream);
 			return ac;
 		}
 		else if(type==TokenFilterType.CAPITALIZATION)
@@ -71,21 +72,21 @@ public class TokenFilterFactory {
 		}
 		else if(type==TokenFilterType.SPECIALCHARS)
 		{
-			sc = new SpecialChar(stream);
+			sc = new SpecialCharFilter(stream);
 			return sc;
 		}
 		else if(type==TokenFilterType.STEMMER)
 		{
-			st = new Stemmer(stream);
+			st = new StemmerFilter(stream);
 			return st;
 		}
 		else if(type==TokenFilterType.STOPWORD){
-			sw = new Stopword(stream);
+			sw = new StopwordFilter(stream);
 			return sw;
 		}
 		else if(type==TokenFilterType.SYMBOL)
 		{
-			sm = new Symbol(stream);
+			sm = new SymbolFilter(stream);
 			return sm;
 		}
 		else

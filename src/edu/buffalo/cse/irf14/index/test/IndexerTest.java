@@ -45,6 +45,7 @@ public class IndexerTest {
 		int len = strs.length;
 		Document d;
 		String dir = System.getProperty("INDEX.DIR");
+		//String dir = "E:/training";
 		IndexWriter writer = new IndexWriter(dir); //set this beforehand
 		for (int i = 0; i < len; i++) {
 			d = new Document();
@@ -244,7 +245,7 @@ public class IndexerTest {
 			retlist.add(temp);
 		}
 		
-		return (HashMap<String, Integer>[]) retlist.toArray();
+		return (HashMap<String, Integer>[]) retlist.toArray(new HashMap[retlist.size()]);
 	}
 
 }

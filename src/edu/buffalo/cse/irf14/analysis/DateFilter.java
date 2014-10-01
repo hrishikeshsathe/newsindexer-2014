@@ -30,18 +30,19 @@ public class DateFilter extends TokenFilter {
 		String year = null;
 		String time = null;
 		Token token = new Token();
+		String temporary = null;
 		if(ts.hasNext()){
 			token = ts.next();
 			temp = ts.getCurrent().getTermText();
 			try{
-				if(temp.matches("(0*[1-9]|[12]\\d|3[01])") && ts.hasNext()){
+				if(temp.matches(AnalysisUtility.DAYPATTERN) && ts.hasNext()){
 					if(ts.next().getTermText().matches(AnalysisUtility.DATEPATTERN+"\\,*")){
 						day = (Integer.valueOf(temp) < 10 ? "0" : "") + temp;
 						month = ts.getCurrent().getTermText().substring(0, 3);
 						month = AnalysisUtility.monthNumber.get(month.toLowerCase());
 						if(ts.hasNext())
 						{
-							if(ts.next().getTermText().matches("\\d{4}\\,*")){
+							if(ts.next().getTermText().matches(AnalysisUtility.YEARPATTERN)){
 								year = ts.getCurrent().getTermText();
 								if(year.contains(",")){
 									year = year.replaceAll("\\,","");
@@ -52,7 +53,7 @@ public class DateFilter extends TokenFilter {
 								tempStream.set(token);
 							}
 							else{
-								year = "1900";
+								year = AnalysisUtility.DEFAULTYEAR;
 								token.setTermText(year+month+day);
 								tempStream.set(token);
 							}
@@ -60,7 +61,8 @@ public class DateFilter extends TokenFilter {
 					}
 				}
 				else if(temp.matches(AnalysisUtility.DATEPATTERN) && ts.hasNext()){
-					if(ts.next().getTermText().matches("(0*[1-9]|[12]\\d|3[01])\\,*")){
+					temporary = ts.next().getTermText();
+					if(temporary.matches(AnalysisUtility.DAYPATTERN+"\\,*")){
 						month = temp.substring(0, 3);
 						month = AnalysisUtility.monthNumber.get(month.toLowerCase());
 						day = ts.getCurrent().getTermText();
@@ -69,7 +71,7 @@ public class DateFilter extends TokenFilter {
 						day = (Integer.valueOf(day) < 10 ? "0" : "") + day;
 						if(ts.hasNext())
 						{
-							if(ts.next().getTermText().matches("\\d{4}\\,*")){
+							if(ts.next().getTermText().matches(AnalysisUtility.YEARPATTERN)){
 								year = ts.getCurrent().getTermText();
 								if(year.contains(",")){
 									year = year.replaceAll("\\,","");
@@ -80,26 +82,67 @@ public class DateFilter extends TokenFilter {
 								tempStream.set(token);
 							}
 							else{
-								year = "1900";
+								year = AnalysisUtility.DEFAULTYEAR;
 								token.setTermText(year+month+day);
 								tempStream.set(token);
 								tempStream.set(ts.getCurrent());
 							}
 						}
+						else{
+							year = AnalysisUtility.DEFAULTYEAR;
+							token.setTermText(year+month+day);
+							tempStream.set(token);
+						}
+					}
+					else if(temporary.matches(AnalysisUtility.YEARPATTERN)){
+						month = temp.substring(0, 3);
+						month = AnalysisUtility.monthNumber.get(month.toLowerCase());
+						year = ts.getCurrent().getTermText();
+						if(year.contains(",")){
+							year = year.replaceAll("\\,","");
+							token.setTermText(year+month+day+",");
+						}
+						else
+							token.setTermText(year+month+AnalysisUtility.DEFAULTDAY);
+						tempStream.set(token);
+					}
+					else
+					{
+						token.setTermText(temp);
+						tempStream.set(token);
 					}
 				}
 				else if(temp.matches("[0-9]+") && ts.hasNext()){
 					if(ts.next().getTermText().matches("(AD)|(BC)")){
-						String zeros = "-0000";
-						year = zeros.substring(0, temp.length()+1)+temp;
-						token.setTermText(year+"01"+"01");
+						String zeros = null;
+						if(ts.getCurrent().getTermText().matches("AD")){
+							zeros = "0000";
+						}
+						else if(ts.getCurrent().getTermText().matches("BC")){
+							zeros = "-0000";
+						}
+						year = zeros.substring(0, zeros.length()-temp.length())+temp;
+						token.setTermText(year+AnalysisUtility.DEFAULTMONTH+AnalysisUtility.DEFAULTDAY);
 						tempStream.set(token);
 					}
-					else{
+					else if(temp.matches(AnalysisUtility.YEARPATTERN)){
+						if((Integer.valueOf(temp)>=1800) && (Integer.valueOf(temp)<=2100)){
 						year = temp;
-						token.setTermText(year+"01"+"01");
+						token.setTermText(year+AnalysisUtility.DEFAULTMONTH+AnalysisUtility.DEFAULTDAY);
 						tempStream.set(token);
 						tempStream.set(ts.getCurrent());
+						}
+						else
+						{
+							token.setTermText(ts.getCurrent().getTermText());
+							tempStream.set(token);
+						}
+						
+					}
+					else
+					{
+						token.setTermText(ts.getCurrent().getTermText());
+						tempStream.set(token);
 					}
 				}
 				else if(temp.matches("[0-9]+[AD|BC]+\\.*")){
@@ -108,11 +151,10 @@ public class DateFilter extends TokenFilter {
 						temp = temp.replaceAll("AD", "");
 						if(temp.contains(".")){
 							temp=temp.replaceAll("\\.", "");
-							System.out.println(temp);
-							year = zeros.substring(0, zeros.length()-temp.length())+temp+"0101"+".";
+							year = zeros.substring(0, zeros.length()-temp.length())+temp+AnalysisUtility.DEFAULTMONTH+AnalysisUtility.DEFAULTDAY+".";
 						}
 						else
-							year = zeros.substring(0, zeros.length()-temp.length())+temp+"0101";
+							year = zeros.substring(0, zeros.length()-temp.length())+temp+AnalysisUtility.DEFAULTMONTH+AnalysisUtility.DEFAULTDAY;
 						token.setTermText(year);
 						tempStream.set(token);
 					}
@@ -155,16 +197,17 @@ public class DateFilter extends TokenFilter {
 					String[] y = temp.split("-");
 					if(y[1].contains(".")){
 						y[1] = y[1].replaceAll("\\.", "");
-						year = y[0]+"0101"+"-"+y[0].substring(0,2)+y[1]+"0101.";
+						year = y[0]+"0101"+"-"+y[0].substring(0,2)+y[1]+AnalysisUtility.DEFAULTMONTH+AnalysisUtility.DEFAULTDAY+".";
 					}
 					else{
-						year = y[0]+"0101"+"-"+y[0].substring(0,2)+y[1]+"0101";
+						year = y[0]+"0101"+"-"+y[0].substring(0,2)+y[1]+AnalysisUtility.DEFAULTMONTH+AnalysisUtility.DEFAULTDAY;
 					}
 					token.setTermText(year);
 					tempStream.set(token);
 				}
 				else
 					tempStream.set(token);
+				
 			}
 			catch(Exception e){
 			}

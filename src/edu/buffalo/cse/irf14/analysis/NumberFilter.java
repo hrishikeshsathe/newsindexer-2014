@@ -13,8 +13,9 @@ public class NumberFilter extends TokenFilter {
 		String temp = null;
 		if(ts.hasNext()){
 			temp = ts.next().getTermText();
+			if(temp.contains("-") || temp.contains(":") || temp.matches("\\d{8}"))
+				return true;
 			temp = temp.replaceAll("[0-9]+\\,*\\.*[0-9]*", "");
-			System.out.println(temp);
 			if(temp.length()==0)
 			{
 				ts.remove();
