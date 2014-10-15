@@ -23,7 +23,7 @@ import java.util.TreeMap;
  * Class that emulates reading data back from a written index
  */
 public class IndexReader {
-	public static HashMap<String, HashMap<Integer, Integer>> index = new HashMap<String, HashMap<Integer, Integer>>();
+	public static HashMap<String, HashMap<Integer, ArrayList<Integer>>> index = new HashMap<String, HashMap<Integer, ArrayList<Integer>>>();
 	public static TreeMap<Integer, String> docDictionary = new TreeMap<Integer, String>();
 	public static int valueSize;
 	/**
@@ -60,7 +60,8 @@ public class IndexReader {
 				index.put(key, postings);*/
 			 FileInputStream fis = new FileInputStream(indexDir+File.separator+type.toString().toLowerCase()+".ser");
 	         ObjectInputStream ois = new ObjectInputStream(fis);
-	         index =  (HashMap<String, HashMap<Integer, Integer>>) ois.readObject();
+	         index =  (HashMap<String, HashMap<Integer, ArrayList<Integer>>>) ois.readObject();
+	        
 	         ois.close();
 	         fis.close();
 		}
@@ -100,15 +101,26 @@ public class IndexReader {
 	public Map<String, Integer> getPostings(String term) {
 		//TODO:YOU MUST IMPLEMENT THIS
 		Map<String, Integer> temp = new HashMap<String, Integer>();
-		HashMap<Integer,Integer> postings = new HashMap<Integer, Integer>();
+		HashMap<Integer,ArrayList<Integer>> postings = new HashMap<Integer, ArrayList<Integer>>();
 		if(index.containsKey(term)){
+			//System.out.println("Term Found!!!");
 		postings = index.get(term);
+		
 		Iterator it=postings.entrySet().iterator();
 		while(it.hasNext())
 		{
 			Map.Entry entry=(Map.Entry)it.next();
 			Integer key=(Integer) entry.getKey();
-			Integer value = (Integer) entry.getValue();
+			//Integer value = (Integer) entry.getValue();
+			ArrayList<Integer> posList=(ArrayList<Integer>)entry.getValue();
+			/*System.out.print(entry.getKey()+" {");
+			for(int i=0;i<posList.size();i++)
+			{
+				System.out.print(posList.get(i)+"  ");
+			}
+			System.out.print("}");
+			System.out.println("");*/
+			Integer value = posList.size();
 			String key1 = docDictionary.get(key);
 			temp.put(key1, value);
 
@@ -131,7 +143,7 @@ public class IndexReader {
 		if(k<=0)
 			return null;
 		
-		HashMap<Integer,Integer> postings = new HashMap<Integer, Integer>();
+		HashMap<Integer,ArrayList<Integer>> postings = new HashMap<Integer, ArrayList<Integer>>();
 		HashMap<String,Integer> occurences = new HashMap<String,Integer>();
         ValueComparator bvc =  new ValueComparator(occurences);
         TreeMap<String,Integer> sorted_map = new TreeMap<String,Integer>(bvc);
@@ -141,12 +153,13 @@ public class IndexReader {
 			Integer count = 0;
 			Map.Entry entry=(Map.Entry)it.next();
 			String key=entry.getKey().toString();
-			postings = (HashMap<Integer, Integer>) entry.getValue();
+			postings = (HashMap<Integer, ArrayList<Integer>>) entry.getValue();
 			Iterator it2 = postings.entrySet().iterator();
 			Map.Entry entry2;
 			while(it2.hasNext()){
 				entry2 = (Map.Entry)it2.next();
-				count = count + (Integer)entry2.getValue();
+				ArrayList<Integer> arrList=(ArrayList<Integer>)entry2.getValue(); 
+				count = count + arrList.size();
 			}
 			occurences.put(key,count);
 		}
@@ -202,7 +215,7 @@ public class IndexReader {
 		answer.addAll(index.get(terms[0]).keySet());
 		Map<String,Integer> queryAnswer = new HashMap<String, Integer>();
 		for(int i=0;i<terms.length;i++){
-			HashMap<Integer,Integer> postings = new HashMap<Integer,Integer>();
+			HashMap<Integer,ArrayList<Integer>> postings = new HashMap<Integer,ArrayList<Integer>>();
 			postings = index.get(terms[i]);
 			answer.retainAll(postings.keySet());
 		}
@@ -213,9 +226,9 @@ public class IndexReader {
 			Integer temp = (Integer) it.next();
 			int occurences = 0;
 			for(int i = 0; i<terms.length;i++){
-				HashMap<Integer,Integer> postings = new HashMap<Integer,Integer>();
+				HashMap<Integer,ArrayList<Integer>> postings = new HashMap<Integer,ArrayList<Integer>>();
 				postings = index.get(terms[i]);
-				occurences += postings.get(temp);
+				occurences =occurences+ postings.get(temp).size();
 			}	
 		queryAnswer.put(docDictionary.get(temp),occurences);
 		}

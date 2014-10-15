@@ -28,10 +28,10 @@ public class Runner {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String ipDir = args[0];
-		String indexDir = args[1];
+		String ipDir; //= args[0];
+		String indexDir; //= args[1];
 		//more? idk!
-		
+		ipDir="d:/Samved IR/training/";
 		File ipDirectory = new File(ipDir);
 		String[] catDirectories = ipDirectory.list();
 		
@@ -39,6 +39,7 @@ public class Runner {
 		File dir;
 		
 		Document d = null;
+		indexDir="d:/Samved IR/training/";
 		IndexWriter writer = new IndexWriter(indexDir);
 		
 		try {

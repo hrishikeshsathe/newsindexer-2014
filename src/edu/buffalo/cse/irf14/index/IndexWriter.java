@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -25,11 +26,11 @@ import edu.buffalo.cse.irf14.document.FieldNames;
  * Class responsible for writing indexes to disk
  */
 public class IndexWriter {
-	public static HashMap<String, HashMap<Integer, Integer>> termIndex = new HashMap<String, HashMap<Integer, Integer>>();
-	public static HashMap<String, HashMap<Integer, Integer>> authIndex = new HashMap<String,HashMap<Integer, Integer>>();
+	public static HashMap<String, HashMap<Integer, ArrayList<Integer>>> termIndex = new HashMap<String, HashMap<Integer, ArrayList<Integer>>>();
+	public static HashMap<String, HashMap<Integer, ArrayList<Integer>>> authIndex = new HashMap<String,HashMap<Integer, ArrayList<Integer>>>();
 	public static HashMap<Integer, String> docDictionary = new HashMap<Integer, String>();
-	public static HashMap<String, HashMap<Integer, Integer>> placeIndex = new HashMap<String,HashMap<Integer, Integer>>();
-	public static HashMap<String, HashMap<Integer, Integer>> categoryIndex = new HashMap<String, HashMap<Integer, Integer>>();
+	public static HashMap<String, HashMap<Integer, ArrayList<Integer>>> placeIndex = new HashMap<String,HashMap<Integer, ArrayList<Integer>>>();
+	public static HashMap<String, HashMap<Integer, ArrayList<Integer>>> categoryIndex = new HashMap<String, HashMap<Integer, ArrayList<Integer>>>();
 
 	static String indexDirectory;
 	public static Integer docID = 0;
@@ -69,7 +70,9 @@ public class IndexWriter {
 	}
 
 	
-	public static void indexAll(FieldNames fn, Document d, HashMap<String, HashMap<Integer, Integer>> indexer)
+	
+
+	public static void indexAll(FieldNames fn, Document d, HashMap<String, HashMap<Integer, ArrayList<Integer>>> indexer)
 	{
 		Tokenizer tz=new Tokenizer();
 		TokenStream ts=null;
@@ -82,11 +85,12 @@ public class IndexWriter {
 				while(ta.increment()){}
 				ts=ta.getStream();
 				ts.reset();
-
+				int posCounter=0;
 				while(ts.hasNext())
 				{
 					//TODO
 					String filename="";
+					
 
 					if(fn==FieldNames.TITLE || fn==FieldNames.CONTENT)
 					{
@@ -101,29 +105,47 @@ public class IndexWriter {
 						docDictionary.put(docID, filename);
 					}
 
-					HashMap<Integer,Integer> postings=new HashMap<Integer, Integer>();
+				//	HashMap<Integer,Integer> postings=new HashMap<Integer, Integer>();
+					HashMap<Integer,ArrayList<Integer>> postings=new HashMap<Integer, ArrayList<Integer>>();
 					String temp = "";
 					if(fn.equals(FieldNames.AUTHOR) || fn.equals(FieldNames.AUTHORORG))
+					{	
 						temp = ts.next().toString().toLowerCase();
+						posCounter++;
+					}
+					
 					else
-						temp = ts.next().toString();
+					{	temp = ts.next().toString();
+						posCounter++;
+					}
 					if(indexer.containsKey(temp)){
 						postings = indexer.get(temp);
 						if(postings.containsKey(docID)){
-							Integer i=postings.get(docID);
-							i=i+1;
-							postings.put(docID,i);
+							ArrayList<Integer> posArray=postings.get(docID);
+							//i=i+1;
+							if(fn==FieldNames.CONTENT)
+							{
+								posArray.add(posCounter);
+								postings.put(docID,posArray);
+							}
+							
 							indexer.put(temp, postings);
 						}
 						else
 						{
-							postings.put(docID, 1);
+							ArrayList<Integer> posArray=new ArrayList<Integer>();
+							if(fn==FieldNames.CONTENT)
+								posArray.add(posCounter);
+							postings.put(docID, posArray);
 							indexer.put(temp, postings);
 						}
 					}
 					else
 					{
-						postings.put(docID,1);
+						ArrayList<Integer> posArray=new ArrayList<Integer>();
+						if(fn==FieldNames.CONTENT)
+						posArray.add(posCounter);
+						postings.put(docID,posArray);
 						indexer.put(temp, postings);
 					}
 
@@ -162,7 +184,7 @@ public class IndexWriter {
 		}
 	}
 
-	public static void writeIndexToFile(String type, HashMap<String, HashMap<Integer, Integer>> indexToWrite){
+	public static void writeIndexToFile(String type, HashMap<String, HashMap<Integer, ArrayList<Integer>>> indexToWrite){
 		try{
 			/*FileWriter writers = new FileWriter(indexDirectory+File.separator+type);
 			BufferedWriter bw = new BufferedWriter(writers,8);

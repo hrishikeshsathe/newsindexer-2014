@@ -44,8 +44,8 @@ public class IndexerTest {
 				"increase in home sales in july", "july new home sales rise"};
 		int len = strs.length;
 		Document d;
-		String dir = System.getProperty("INDEX.DIR");
-		//String dir = "E:/training";
+		//String dir = System.getProperty("INDEX.DIR");
+		String dir = "d:/Samved IR/training/";
 		IndexWriter writer = new IndexWriter(dir); //set this beforehand
 		for (int i = 0; i < len; i++) {
 			d = new Document();
@@ -59,7 +59,8 @@ public class IndexerTest {
 
 	@Before
 	public final void before() {
-		reader = new IndexReader(System.getProperty("INDEX.DIR"), IndexType.TERM);
+	//	reader = new IndexReader(System.getProperty("INDEX.DIR"), IndexType.TERM);
+		reader = new IndexReader("d:/Samved IR/training/", IndexType.TERM);
 	}
 	
 	/**
